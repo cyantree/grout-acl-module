@@ -23,7 +23,7 @@ class AclTool
     public function isPermittedRole($permittedRole, $userRole = null)
     {
         if (!$userRole) {
-            $userRole = $this->sessionData->userRole;
+            $userRole = $this->sessionData->account->role;
         }
 
         if (!$userRole) {
@@ -49,7 +49,7 @@ class AclTool
             $userGrants = $this->config->roles[$userRole]->getGrants();
 
         } elseif (!$userGrants) {
-            $userRole = $this->sessionData->userRole;
+            $userRole = $this->sessionData->account->role;
 
             if (!$userRole) {
                 return false;

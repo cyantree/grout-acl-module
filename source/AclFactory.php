@@ -32,6 +32,9 @@ class AclFactory extends AppFactory
         if ($tool === null) {
             $tool = new AclSessionData();
 
+            $config = $this->config();
+            $tool->login($config->guestAccount);
+
             $sessionData->set($this->module->id, $tool);
         }
 

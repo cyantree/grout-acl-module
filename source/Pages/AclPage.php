@@ -40,7 +40,7 @@ class AclPage extends Page
                     $success = $password == $account->password && $f->acl()->isPermittedRole($neededRole, $account->role);
 
                     if ($success) {
-                        $f->sessionData()->login($username, $account->userId, $account->role);
+                        $f->sessionData()->login($account);
                     }
 
                 } else {
@@ -50,8 +50,8 @@ class AclPage extends Page
 
                     $module->events->trigger('login', $request);
 
-                    if ($request->response->userId || $request->response->userRole) {
-                        $f->sessionData()->login($username, $request->response->userId, $request->response->userRole);
+                    if ($request->response->account) {
+                        $f->sessionData()->login($request->response->account);
 
                         $success = true;
                     }

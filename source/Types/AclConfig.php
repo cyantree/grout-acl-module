@@ -6,8 +6,11 @@ class AclConfig
     /** @var AclRole[] */
     public $roles = array();
 
-    public $defaultRole;
-    public $defaultGrants = array();
+    /** @var AclRole */
+    public $guestRole;
+
+    /** @var AclAccount */
+    public $guestAccount;
 
     public $accounts = array();
 
@@ -19,6 +22,10 @@ class AclConfig
     public function addRole(AclRole $role, $parentRoleOrId = null)
     {
         $this->roles[$role->id] = $role;
+
+        if (!$parentRoleOrId) {
+            $parentRoleOrId = $this->guestAccount;
+        }
 
         if ($parentRoleOrId) {
             /** @var $parentRole AclRole */
@@ -37,6 +44,19 @@ class AclConfig
         }
 
         return $role;
+    }
+
+    public function setGuestRole(AclRole $role)
+    {
+        $this->addRole($role);
+        $this->guestRole = $role;
+    }
+
+    public function setGuestAccount(AclAccount $account)
+    {
+        $this->addAccount($account);
+        $account->role = $this->guestRole->id;
+        $this->guestAccount = $account;
     }
 
     public function addAccount(AclAccount $account)

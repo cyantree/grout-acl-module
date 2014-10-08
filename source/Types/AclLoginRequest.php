@@ -17,6 +17,6 @@ class AclLoginRequest
 
 class AclLoginResponse
 {
-    public $userId;
-    public $userRole;
+    /** @var AclAccount */
+    public $account;
 }

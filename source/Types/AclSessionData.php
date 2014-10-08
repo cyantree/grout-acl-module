@@ -3,19 +3,16 @@ namespace Grout\Cyantree\AclModule\Types;
 
 class AclSessionData
 {
-    public $userId;
-    public $username;
-    public $userRole;
+    /** @var AclAccount */
+    public $account;
 
-    public function login($username, $userId, $userRole)
+    public function login(AclAccount $account)
     {
-        $this->userId = $userId;
-        $this->username = $username;
-        $this->userRole = $userRole;
+        $this->account = $account;
     }
 
     public function logout()
     {
-        $this->username = $this->userId = $this->userRole = null;
+        $this->account = null;
     }
 }
