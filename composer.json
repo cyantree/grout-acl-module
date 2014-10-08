@@ -1,6 +1,5 @@
 {
     "name": "cyantree/grout-acl-module",
-    "version": "1.0",
     "type": "grout-module",
     "description": "module for implementing an ACL",
     "keywords": [
@@ -26,7 +25,7 @@
         }
     },
     "require": {
-        "cyantree/grout": ">=5.0,<6.0"
+        "cyantree/grout": "5.*"
     },
     "extra": {
         "grout-module-name": "Cyantree/AclModule"
