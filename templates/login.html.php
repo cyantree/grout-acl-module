@@ -11,6 +11,15 @@ $this->task->data->set('pageTitle', $q->t('Access denied'));
 <p>
     <?= $q->p($q->t('Login to access <strong>“%h:name%”</strong>.'), array('name' => $q->e($this->in->get('name')))) ?>
 </p>
+<?php
+if ($this->in->get('error')) {
+?>
+<p class="error">
+    <?= $q->et('You are not allowed to access this page. Please check your credentials.') ?>
+</p>
+<?php
+}
+?>
 <form action="<?= $q->e($this->task->request->url) ?>" method="post">
     <div class="element">
         <label for="username"><?= $q->et('Username:') ?></label>

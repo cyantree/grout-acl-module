@@ -61,6 +61,11 @@ $q = $this->q();
         form .element {
             margin: 10px 0;
         }
+
+        p.error {
+            color: #a00;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>

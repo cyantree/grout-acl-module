@@ -68,7 +68,8 @@ class AclPage extends Page
         $this->setResult($f->templates()->load($f->config()->loginTemplate, array(
                           'url' => $this->task->url,
                           'name' => $this->task->vars->get('name'),
-                          'username' => $this->task->request->post->get('username')
+                          'username' => $this->task->request->post->get('username'),
+                          'error' => $this->task->request->method == 'POST'
                     ), $f->config()->baseTemplate)->content, null, ResponseCode::CODE_403);
     }
 }
