@@ -45,10 +45,10 @@ class AclFactory extends AppFactory
     /** @return AclConfig */
     public function config()
     {
-        if (!($tool = $this->_getAppTool(__FUNCTION__, __CLASS__))) {
+        if (!($tool = $this->getTool(__FUNCTION__, false))) {
             $tool = $this->app->configs->getConfig($this->module->id);
 
-            $this->_setAppTool(__FUNCTION__, $tool);
+            $this->setTool(__FUNCTION__, $tool);
         }
 
         return $tool;
@@ -57,10 +57,10 @@ class AclFactory extends AppFactory
     /** @return AclTool */
     public function acl()
     {
-        if (!($tool = $this->_getAppTool(__FUNCTION__, __CLASS__))) {
+        if (!($tool = $this->getTool(__FUNCTION__, false))) {
             $tool = new AclTool($this->config(), $this->sessionData());
 
-            $this->_setAppTool(__FUNCTION__, $tool);
+            $this->setTool(__FUNCTION__, $tool);
         }
 
         return $tool;
@@ -68,13 +68,13 @@ class AclFactory extends AppFactory
 
     public function templates()
     {
-        if (!($tool = $this->_getAppTool(__FUNCTION__, __CLASS__))) {
+        if (!($tool = $this->getTool(__FUNCTION__, false))) {
             $tool = new TemplateGenerator();
             $tool->app = $this->app;
             $tool->setTemplateContext(new AclTemplateContext());
             $tool->defaultModule = $this->module;
 
-            $this->_setAppTool(__FUNCTION__, $tool);
+            $this->setTool(__FUNCTION__, $tool);
         }
 
         return $tool;
@@ -83,12 +83,12 @@ class AclFactory extends AppFactory
     /** @return AclQuick */
     public function quick()
     {
-        if (!($tool = $this->_getAppTool(__FUNCTION__, __CLASS__))) {
+        if (!($tool = $this->getTool(__FUNCTION__, false))) {
             $tool = new AclQuick($this->app);
             $tool->translator = $this->translator();
             $tool->translatorDefaultTextDomain = $this->module->id;
 
-            $this->_setAppTool(__FUNCTION__, $tool);
+            $this->setTool(__FUNCTION__, $tool);
         }
 
         return $tool;
@@ -97,10 +97,10 @@ class AclFactory extends AppFactory
     /** @return Translator */
     public function translator()
     {
-        if (!($tool = $this->_getAppTool(__FUNCTION__, __CLASS__))) {
+        if (!($tool = $this->getTool(__FUNCTION__, false))) {
             $tool = new DummyTranslator();
 
-            $this->_setAppTool(__FUNCTION__, $tool);
+            $this->setTool(__FUNCTION__, $tool);
         }
 
         return $tool;
