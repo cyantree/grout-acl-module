@@ -30,7 +30,7 @@ class AclModule extends Module
 
     public function getLogoutUrl()
     {
-        $route = $this->getRoute('logout');
+        $route = $this->getRoute('logout', false);
 
         return $route ? $route->getUrl() : null;
     }
