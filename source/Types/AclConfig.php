@@ -6,17 +6,24 @@ class AclConfig
     /** @var AclRole[] */
     public $roles = array();
 
-    /** @var AclRole */
-    public $guestRole;
-
     /** @var AclAccount */
     public $guestAccount;
+
+    /** @var AclRole */
+    public $guestRole;
 
     public $accounts = array();
 
     public $loginTemplate = 'login.html';
     public $logoutTemplate = 'logout.html';
     public $baseTemplate = 'base.html';
+
+    function __construct()
+    {
+        $this->guestRole = $this->addRole(new AclRole('guest'));
+        $this->guestAccount = $this->addAccount(new AclAccount('guest', '', 'guest'));
+    }
+
 
     /** @return AclRole */
     public function addRole(AclRole $role, $parentRoleOrId = null)
@@ -46,21 +53,10 @@ class AclConfig
         return $role;
     }
 
-    public function setGuestRole(AclRole $role)
-    {
-        $this->addRole($role);
-        $this->guestRole = $role;
-    }
-
-    public function setGuestAccount(AclAccount $account)
-    {
-        $this->addAccount($account);
-        $account->role = $this->guestRole->id;
-        $this->guestAccount = $account;
-    }
-
     public function addAccount(AclAccount $account)
     {
         $this->accounts[$account->username] = $account;
+
+        return $account;
     }
 }
