@@ -23,7 +23,7 @@ class AclFactory extends AppFactory
     /** @return AclFactory */
     public static function get(App $app = null, $context = null, $module = 'Cyantree\AclModule')
     {
-        return GroutFactory::_getInstance($app, __CLASS__, $context, $module);
+        return GroutFactory::getFactory($app, __CLASS__, $context, $module);
     }
 
     /** @return AclSessionData */
