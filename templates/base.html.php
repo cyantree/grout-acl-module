@@ -1,14 +1,16 @@
 <?php
-use Cyantree\Grout\App\Generators\Template\TemplateContext;
 use Cyantree\Grout\Tools\StringTools;
+use Grout\Cyantree\AclModule\Types\AclTemplateContext;
 
-/** @var $this TemplateContext */
+/** @var $this AclTemplateContext */
+$q = $this->q();
 ?>
 <!DOCTYPE html>
 <html>
 <head>
+    <title><?= $q->e($this->task->data->get('pageTitle', 'ACL')) ?></title>
     <meta charset="UTF-8">
-    <base href="<?= StringTools::escapeHtml($this->app->url) ?>">
+    <base href="<?= $q->e($this->app->url) ?>">
     <style>
         body {
             font-family: Verdana, Arial, sans-serif;

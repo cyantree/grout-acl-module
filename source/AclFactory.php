@@ -4,10 +4,14 @@ namespace Grout\Cyantree\AclModule;
 use Cyantree\Grout\App\App;
 use Cyantree\Grout\App\Generators\Template\TemplateGenerator;
 use Cyantree\Grout\App\GroutFactory;
+use Cyantree\Grout\Translation\DummyTranslator;
+use Cyantree\Grout\Translation\Translator;
 use Grout\AppModule\AppFactory;
 use Grout\Cyantree\AclModule\Tools\AclTool;
+use Grout\Cyantree\AclModule\Tools\AclQuick;
 use Grout\Cyantree\AclModule\Types\AclConfig;
 use Grout\Cyantree\AclModule\Types\AclSessionData;
+use Grout\Cyantree\AclModule\Types\AclTemplateContext;
 
 class AclFactory extends AppFactory
 {
@@ -70,7 +74,34 @@ class AclFactory extends AppFactory
         if (!($tool = $this->_getAppTool(__FUNCTION__, __CLASS__))) {
             $tool = new TemplateGenerator();
             $tool->app = $this->app;
+            $tool->setTemplateContext(new AclTemplateContext());
             $tool->defaultModule = $this->module;
+
+            $this->_setAppTool(__FUNCTION__, $tool);
+        }
+
+        return $tool;
+    }
+
+    /** @return AclQuick */
+    public function quick()
+    {
+        if (!($tool = $this->_getAppTool(__FUNCTION__, __CLASS__))) {
+            $tool = new AclQuick($this->app);
+            $tool->translator = $this->translator();
+            $tool->translatorDefaultTextDomain = $this->module->id;
+
+            $this->_setAppTool(__FUNCTION__, $tool);
+        }
+
+        return $tool;
+    }
+
+    /** @return Translator */
+    public function translator()
+    {
+        if (!($tool = $this->_getAppTool(__FUNCTION__, __CLASS__))) {
+            $tool = new DummyTranslator();
 
             $this->_setAppTool(__FUNCTION__, $tool);
         }
