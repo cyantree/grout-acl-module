@@ -30,10 +30,6 @@ class AclConfig
     {
         $this->roles[$role->id] = $role;
 
-        if (!$parentRoleOrId) {
-            $parentRoleOrId = $this->guestAccount;
-        }
-
         if ($parentRoleOrId) {
             /** @var $parentRole AclRole */
             if (is_string($parentRoleOrId)) {
