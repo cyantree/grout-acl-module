@@ -55,6 +55,10 @@ use Cyantree\Grout\Tools\StringTools;
             width: 200px;
             cursor: pointer;
         }
+
+        form .element {
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
