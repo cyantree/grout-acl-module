@@ -30,14 +30,15 @@ class AclPage extends Page
         if (!$success) {
             list($username, $password) = $task->request->post->getMultiple(array('username', 'password'), false);
 
-            if ($username && $password) {
+            if ($username) {
                 // Check inline registered accounts
                 $config = $f->config();
 
                 /** @var AclAccount $account */
                 $account = ArrayTools::get($config->accounts, $username);
                 if ($account) {
-                    $success = $password == $account->password && $f->acl()->isPermittedRole($neededRole, $account->role);
+                    $success = $password === $account->password
+                        && $f->acl()->isPermittedRole($neededRole, $account->role);
 
                     if ($success) {
                         $f->sessionData()->login($account);

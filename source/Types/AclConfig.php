@@ -12,6 +12,7 @@ class AclConfig
     /** @var AclRole */
     public $guestRole;
 
+    /** @var AclAccount[] */
     public $accounts = array();
 
     public $loginTemplate = 'login.html';
