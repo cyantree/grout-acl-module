@@ -19,7 +19,7 @@ class AclConfig
     public $logoutTemplate = 'logout.html';
     public $baseTemplate = 'base.html';
 
-    function __construct()
+    public function __construct()
     {
         $this->guestRole = $this->addRole(new AclRole('guest'));
         $this->guestAccount = $this->addAccount(new AclAccount('guest', '', 'guest'));

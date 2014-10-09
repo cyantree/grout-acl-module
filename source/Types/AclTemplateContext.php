@@ -7,16 +7,16 @@ use Grout\Cyantree\AclModule\AclFactory;
 class AclTemplateContext extends TemplateContext
 {
     /** @var AclFactory */
-    private $_factory;
+    private $factory;
 
     /** @return AclFactory */
     public function f()
     {
-        if ($this->_factory === null) {
-            $this->_factory = AclFactory::get($this->app);
+        if ($this->factory === null) {
+            $this->factory = AclFactory::get($this->app);
         }
 
-        return $this->_factory;
+        return $this->factory;
     }
 
     public function q()

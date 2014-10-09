@@ -13,7 +13,7 @@ class AclRole
 
     public $grants = array();
 
-    function __construct($id = null, array $grants = null)
+    public function __construct($id = null, array $grants = null)
     {
         $this->id = $id;
 
@@ -45,7 +45,7 @@ class AclRole
 
         $parentRole = $this->parent;
 
-        while($parentRole) {
+        while ($parentRole) {
             $grants = array_merge($grants, $parentRole->grants);
             $parentRole = $parentRole->parent;
         }

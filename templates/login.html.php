@@ -13,11 +13,11 @@ $this->task->data->set('pageTitle', $q->t('Access denied'));
 </p>
 <?php
 if ($this->in->get('error')) {
-?>
-<p class="error">
+    ?>
+    <p class="error">
     <?= $q->et('You are not allowed to access this page. Please check your credentials.') ?>
-</p>
-<?php
+    </p>
+    <?php
 }
 ?>
 <form action="<?= $q->e($this->task->request->url) ?>" method="post">

@@ -15,7 +15,7 @@ class AclTool
     /** @var AclConfig */
     private $config;
 
-    function __construct(AclConfig $config, AclSessionData $sessionData)
+    public function __construct(AclConfig $config, AclSessionData $sessionData)
     {
         $this->config = $config;
         $this->sessionData = $sessionData;
@@ -34,7 +34,7 @@ class AclTool
         /** @var AclRole $role */
         $role = $this->config->roles[$userRole];
 
-        while($role->id != $permittedRole && $role->parent) {
+        while ($role->id != $permittedRole && $role->parent) {
             $role = $role->parent;
         }
 

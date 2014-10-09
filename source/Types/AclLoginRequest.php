@@ -9,14 +9,8 @@ class AclLoginRequest
     /** @var AclLoginResponse */
     public $response;
 
-    function __construct()
+    public function __construct()
     {
         $this->response = new AclLoginResponse();
     }
-}
-
-class AclLoginResponse
-{
-    /** @var AclAccount */
-    public $account;
 }

@@ -9,7 +9,7 @@ class AclAccount
 
     public $data;
 
-    function __construct($username = null, $password = null, $role = null, $data = null)
+    public function __construct($username = null, $password = null, $role = null, $data = null)
     {
         $this->username = $username;
         $this->password = $password;
