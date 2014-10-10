@@ -22,9 +22,23 @@ class AclModule extends Module
         );
     }
 
+    public function secureUrlRecursive($url, $name = null, $role = null, $grant = null)
+    {
+        $this->addRoute(
+                $url . '%%secureRecursive,.*%%',
+                'Pages\AclPage',
+                array('aclRoute' => true, 'role' => $role, 'grant' => $grant, 'name' => $name)
+        );
+    }
+
     public function whitelistUrl($url)
     {
         $this->addRoute($url, null, array('aclRoute' => false), 1);
+    }
+
+    public function whitelistUrlRecursive($url)
+    {
+        $this->addRoute($url . '%%whitelistRecursive,.*%%', null, array('aclRoute' => false), 1);
     }
 
     public function addLogoutUrl($url)
