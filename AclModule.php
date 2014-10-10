@@ -15,7 +15,11 @@ class AclModule extends Module
 
     public function secureUrl($url, $name = null, $role = null, $grant = null)
     {
-        $this->addRoute($url, 'Pages\AclPage', array('aclRoute' => true, 'role' => $role, 'grant' => $grant, 'name' => $name));
+        $this->addRoute(
+            $url,
+            'Pages\AclPage',
+            array('aclRoute' => true, 'role' => $role, 'grant' => $grant, 'name' => $name)
+        );
     }
 
     public function whitelistUrl($url)

@@ -17,6 +17,12 @@ class LogoutPage extends Page
         $f = AclFactory::get($this->app);
         $f->sessionData()->logout();
 
-        $this->setResult($f->templates()->load($f->config()->logoutTemplate, null, $f->config()->baseTemplate)->content);
+        $this->setResult(
+            $f->templates()->load(
+                $f->config()->logoutTemplate,
+                null,
+                $f->config()->baseTemplate
+            )->content
+        );
     }
 }
