@@ -10,22 +10,15 @@ use Grout\Cyantree\AclModule\AclFactory;
 use Grout\Cyantree\AclModule\AclModule;
 use Grout\Cyantree\AclModule\Types\AclAccount;
 use Grout\Cyantree\AclModule\Types\AclLoginRequest;
+use Grout\Cyantree\AclModule\Types\AclRule;
 
 class AclPage extends Page
 {
-    public static function processAuthorization(AclModule $module, Task $task, $neededRole = null, $neededGrant = null)
+    public static function processAuthorization(AclModule $module, Task $task, AclRule $rule)
     {
         $f = AclFactory::get($task->app, null, $module);
 
-        $success = false;
-
-        if ($neededRole) {
-            $success = $f->acl()->isPermittedRole($neededRole);
-        }
-
-        if ($neededGrant) {
-            $success = $f->acl()->isGranted($neededGrant);
-        }
+        $success = $f->acl()->satisfies($rule);
 
         if (!$success) {
             list($username, $password) = $task->request->post->getMultiple(array('username', 'password'), false);
@@ -37,8 +30,7 @@ class AclPage extends Page
                 /** @var AclAccount $account */
                 $account = ArrayTools::get($config->accounts, $username);
                 if ($account) {
-                    $success = $password === $account->password
-                        && $f->acl()->isPermittedRole($neededRole, $account->role);
+                    $success = $f->acl()->satisfies($rule, $account);
 
                     if ($success) {
                         $f->sessionData()->login($account);
@@ -66,9 +58,12 @@ class AclPage extends Page
     public function parseTask()
     {
         $f = AclFactory::get($this->app);
+
+        $aclConfig = $this->task->vars->asFilter($this->module->id);
+
         $this->setResult($f->templates()->load($f->config()->loginTemplate, array(
                           'url' => $this->task->url,
-                          'name' => $this->task->vars->get('name'),
+                          'name' => $aclConfig->get('name'),
                           'username' => $this->task->request->post->get('username'),
                           'error' => $this->task->request->method == 'POST'
                     ), $f->config()->baseTemplate)->content, null, ResponseCode::CODE_403);

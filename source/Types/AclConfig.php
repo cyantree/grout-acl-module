@@ -22,7 +22,8 @@ class AclConfig
     public function __construct()
     {
         $this->guestRole = $this->addRole(new AclRole('guest'));
-        $this->guestAccount = $this->addAccount(new AclAccount('guest', '', 'guest'));
+        $this->guestAccount = $this->addAccount(new AclAccount('guest', ''), 'guest');
+        $this->guestRole->isGuest = true;
     }
 
 
@@ -50,9 +51,13 @@ class AclConfig
         return $role;
     }
 
-    public function addAccount(AclAccount $account)
+    public function addAccount(AclAccount $account, $roleId = null)
     {
         $this->accounts[$account->username] = $account;
+
+        if ($roleId) {
+            $account->role = $this->roles[$roleId];
+        }
 
         return $account;
     }

@@ -15,6 +15,9 @@ use Grout\Cyantree\AclModule\Types\AclTemplateContext;
 
 class AclFactory extends AppFactory
 {
+    /** @var AclModule */
+    public $module;
+
     public function __construct()
     {
         parent::__construct();

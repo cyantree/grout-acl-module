@@ -8,8 +8,7 @@ class AclRole
     /** @var AclRole */
     public $parent;
 
-    /** @var AclRole[] */
-    public $roles = array();
+    public $isGuest = false;
 
     public $grants = array();
 
@@ -22,20 +21,44 @@ class AclRole
         }
     }
 
-
-    /** @return AclRole */
-//    public function addRole(AclRole $role)
-//    {
-//        $this->roles[] = $role;
-//        $role->parent = $this;
-//
-//        return $role;
-//    }
-
     public function addGrants(array $grants)
     {
         foreach ($grants as $grant) {
             $this->grants[$grant] = true;
+        }
+    }
+
+    public function isRole($role)
+    {
+        if ($role == '-') {
+            return false;
+        }
+
+        if ($role == '*' || $role == $this->id) {
+            return true;
+
+        } elseif ($this->parent) {
+            return $this->parent->isRole($role);
+
+        } else {
+            return false;
+        }
+    }
+
+    public function hasGrant($grant)
+    {
+        if ($grant == '-') {
+            return false;
+        }
+
+        if ($grant == '*' || isset($this->grants['*']) || isset($this->grants[$grant])) {
+            return true;
+
+        } elseif ($this->parent) {
+            return $this->parent->hasGrant($grant);
+
+        } else {
+            return false;
         }
     }
 
@@ -50,6 +73,6 @@ class AclRole
             $parentRole = $parentRole->parent;
         }
 
-        return $grants;
+        return array_keys($grants);
     }
 }

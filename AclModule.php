@@ -3,42 +3,97 @@ namespace Grout\Cyantree\AclModule;
 
 use Cyantree\Grout\App\Module;
 use Cyantree\Grout\App\Route;
+use Cyantree\Grout\App\Task;
+use Cyantree\Grout\Event\Event;
+use Cyantree\Grout\Tools\AppTools;
 use Grout\Cyantree\AclModule\Pages\AclPage;
 use Grout\Cyantree\AclModule\Types\AclConfig;
+use Grout\Cyantree\AclModule\Types\AclRule;
 
 class AclModule extends Module
 {
+    /** @var AclFactory */
+    private $factory;
+
+    public function factory()
+    {
+        if ($this->factory === null) {
+            $this->factory = AclFactory::get($this->app, $this);
+        }
+
+        return $this->factory;
+    }
+
     public function init()
     {
         $this->app->configs->setDefaultConfig($this->id, new AclConfig());
     }
 
-    public function secureUrl($url, $name = null, $role = null, $grant = null)
+    public function secureUrl($url, AclRule $rule, $name = null, $loginPage = null)
     {
-        $this->addRoute(
-            $url,
-            'Pages\AclPage',
-            array('aclRoute' => true, 'role' => $role, 'grant' => $grant, 'name' => $name)
-        );
+        $route = $this->addRoute($url);
+        $this->secureRoute($route, $rule, $name, $loginPage);
     }
 
-    public function secureUrlRecursive($url, $name = null, $role = null, $grant = null)
+    public function secureUrlRecursive($url, AclRule $rule, $name = null, $loginPage = 0)
     {
-        $this->addRoute(
-                $url . '%%secureRecursive,.*%%',
-                'Pages\AclPage',
-                array('aclRoute' => true, 'role' => $role, 'grant' => $grant, 'name' => $name)
-        );
+        $route = $this->addRoute($url . '%%secureRecursive,.*%%');
+        $this->secureRoute($route, $rule, $name, $loginPage);
     }
 
-    public function whitelistUrl($url)
+    public function secureRoute(Route $route, AclRule $rule, $name = null, $loginPage = null)
     {
-        $this->addRoute($url, null, array('aclRoute' => false), 1);
+        $route->data->set($this->id, array('rule' => $rule, 'name' => $name, 'loginPage' => $loginPage));
+        $route->events->join('retrieved', array($this, 'onRouteRetrieved'));
     }
 
-    public function whitelistUrlRecursive($url)
+    public function onRouteRetrieved(Event $event)
     {
-        $this->addRoute($url . '%%whitelistRecursive,.*%%', null, array('aclRoute' => false), 1);
+        /** @var Route $route */
+        $route = $event->context['route'];
+
+        /** @var Task $task */
+        $task = $event->context['task'];
+
+        if (!$route->data->has($this->id)) {
+            return;
+        }
+
+        $acl = $route->data->asFilter($this->id);
+
+        if (!AclPage::processAuthorization($this, $task, $acl->get('rule'))) {
+            if ($loginPage = $acl->get('loginPage')) {
+                $context = AppTools::decodeContext($loginPage, $this->app, $task->module, $task->plugin);
+
+                $module = $context->module;
+                $page = $context->uri;
+
+            } else {
+                $module = $this;
+                $page = 'Pages\AclPage';
+            }
+
+
+            $event->data = $module->addRoute('', $page, $route->data->getData(), 0, false);
+            $event->stopPropagation = true;
+        }
+    }
+
+    public function whitelistUrl($url, $priority = 1)
+    {
+        $route = $this->addRoute($url, null, null, $priority);
+        $this->whitelistRoute($route);
+    }
+
+    public function whitelistUrlRecursive($url, $priority = 1)
+    {
+        $route = $this->addRoute($url . '%%whitelistRecursive,.*%%', null, null, $priority);
+        $this->whitelistRoute($route);
+    }
+
+    public function whitelistRoute(Route $route)
+    {
+        $route->data->set($this->id, array('whitelisted' => true));
     }
 
     public function addLogoutUrl($url)
@@ -57,23 +112,23 @@ class AclModule extends Module
     {
         /** @var Route $route */
 
-        $aclRoute = $route->data->get('aclRoute');
-
-        if ($aclRoute === null) {
+        if (!$route->data->has($this->id)) {
             return true;
         }
 
-        if ($task->data->get('aclWhitelisted')) {
+        $acl = $route->data->asFilter($this->id);
+
+        if ($task->data->get($this->id . 'Whitelisted')) {
             return false;
         }
 
-        if ($aclRoute === false) {
-            $task->data->set('aclWhitelisted', true);
+        if ($acl->get('whitelisted')) {
+            $task->data->set($this->id . 'Whitelisted', true);
             return false;
         }
 
-        $task->data->set('aclModule', $this);
+        $task->data->set($this->type, $this);
 
-        return !AclPage::processAuthorization($this, $task, $route->data->get('role'), $route->data->get('grant'));
+        return !AclPage::processAuthorization($this, $task, $acl->needs('rule'));
     }
 }

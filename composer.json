@@ -25,7 +25,8 @@
         }
     },
     "require": {
-        "cyantree/grout": "5.*"
+        "cyantree/grout": "5.*",
+        "cyantree/grout-acl-module": "1.*"
     },
     "extra": {
         "grout-module-name": "Cyantree/AclModule"
