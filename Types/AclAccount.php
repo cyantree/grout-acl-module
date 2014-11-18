@@ -18,4 +18,9 @@ class AclAccount
         $this->role = $role;
         $this->data = $data;
     }
+
+    public function checkPassword($password = null)
+    {
+        return $password !== null && $password === $this->password;
+    }
 }
