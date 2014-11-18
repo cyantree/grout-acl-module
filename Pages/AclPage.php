@@ -30,7 +30,7 @@ class AclPage extends Page
                 /** @var AclAccount $account */
                 $account = ArrayTools::get($config->accounts, $username);
                 if ($account) {
-                    $success = $f->acl()->satisfies($rule, $account);
+                    $success = $account->checkPassword($password) && $f->acl()->satisfies($rule, $account);
 
                     if ($success) {
                         $f->sessionData()->login($account);
