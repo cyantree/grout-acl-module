@@ -13,6 +13,7 @@ use Grout\Cyantree\AclModule\Types\AclConfig;
 use Grout\Cyantree\AclModule\Types\AclSessionData;
 use Grout\Cyantree\AclModule\Types\AclTemplateContext;
 
+// TODO: Remove dependency of AppFactory
 class AclFactory extends AppFactory
 {
     /** @var AclModule */
