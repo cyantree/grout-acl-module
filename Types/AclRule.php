@@ -5,8 +5,9 @@ class AclRule
 {
     public $roles;
     public $grants;
+    public $priority;
 
-    public function __construct($roles = null, $grants = null)
+    public function __construct($roles = null, $grants = null, $priority = 0)
     {
         if ($roles) {
             if (!is_array($roles)) {
@@ -32,6 +33,8 @@ class AclRule
         } else {
             $this->grants = array();
         }
+
+        $this->priority = $priority;
     }
 
     public function satisfies(AclAccount $account)

@@ -8,6 +8,7 @@ use Cyantree\Grout\App\Types\ResponseCode;
 use Cyantree\Grout\Tools\ArrayTools;
 use Grout\Cyantree\AclModule\AclFactory;
 use Grout\Cyantree\AclModule\AclModule;
+use Grout\Cyantree\AclModule\AclRouteContext;
 use Grout\Cyantree\AclModule\Types\AclAccount;
 use Grout\Cyantree\AclModule\Types\AclLoginRequest;
 use Grout\Cyantree\AclModule\Types\AclRule;
@@ -59,11 +60,12 @@ class AclPage extends Page
     {
         $f = AclFactory::get($this->app);
 
-        $aclConfig = $this->task->vars->asFilter($this->module->id);
+        /** @var AclRouteContext $aclConfig */
+        $aclConfig = $this->task->vars->get($this->module->id);
 
         $this->setResult($f->templates()->load($f->config()->loginTemplate, array(
                           'url' => $this->task->url,
-                          'name' => $aclConfig->get('name'),
+                          'name' => $aclConfig->name,
                           'username' => $this->task->request->post->get('username'),
                           'error' => $this->task->request->method == 'POST'
                     ), $f->config()->baseTemplate)->content, null, ResponseCode::CODE_403);

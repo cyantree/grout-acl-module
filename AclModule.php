@@ -8,6 +8,7 @@ use Cyantree\Grout\Event\Event;
 use Cyantree\Grout\Tools\AppTools;
 use Grout\Cyantree\AclModule\Pages\AclPage;
 use Grout\Cyantree\AclModule\Types\AclConfig;
+use Grout\Cyantree\AclModule\Types\AclRouteContext;
 use Grout\Cyantree\AclModule\Types\AclRule;
 
 class AclModule extends Module
@@ -43,7 +44,8 @@ class AclModule extends Module
 
     public function secureRoute(Route $route, AclRule $rule, $name = null, $loginPage = null)
     {
-        $route->data->set($this->id, array('rule' => $rule, 'name' => $name, 'loginPage' => $loginPage));
+        $route->priority = $rule->priority;
+        $route->data->set($this->id, new AclRouteContext($rule, $name, $loginPage));
         $route->events->join('retrieved', array($this, 'onRouteRetrieved'));
     }
 
@@ -55,45 +57,34 @@ class AclModule extends Module
         /** @var Task $task */
         $task = $event->context['task'];
 
-        if (!$route->data->has($this->id)) {
+        if ($task->data->get($this->id . 'result')) {
             return;
         }
 
-        $acl = $route->data->asFilter($this->id);
+        /** @var AclRouteContext $context */
+        $context = $route->data->get($this->id);
 
-        if (!AclPage::processAuthorization($this, $task, $acl->get('rule'))) {
-            if ($loginPage = $acl->get('loginPage')) {
-                $context = AppTools::decodeContext($loginPage, $this->app, $task->module, $task->plugin);
+        if (!$context) {
+            return;
+        }
 
-                $module = $context->module;
-                $page = $context->uri;
+        $context->satisfied = AclPage::processAuthorization($this, $task, $context->rule);
+
+        if (!$context->satisfied) {
+            if ($loginPage = $context->loginPage) {
+                $loginPageContext = AppTools::decodeContext($loginPage, $this->app, $task->module, $task->plugin);
+
+                $module = $loginPageContext->module;
+                $page = $loginPageContext->uri;
 
             } else {
                 $module = $this;
                 $page = 'Pages\AclPage';
             }
 
-
             $event->data = $module->addRoute('', $page, $route->data->getData(), 0, false);
             $event->stopPropagation = true;
         }
-    }
-
-    public function whitelistUrl($url, $priority = 1)
-    {
-        $route = $this->addRoute($url, null, null, $priority);
-        $this->whitelistRoute($route);
-    }
-
-    public function whitelistUrlRecursive($url, $priority = 1)
-    {
-        $route = $this->addRoute($url . '%%whitelistRecursive,.*%%', null, null, $priority);
-        $this->whitelistRoute($route);
-    }
-
-    public function whitelistRoute(Route $route)
-    {
-        $route->data->set($this->id, array('whitelisted' => true));
     }
 
     public function addLogoutUrl($url)
@@ -110,25 +101,17 @@ class AclModule extends Module
 
     public function routeRetrieved($task, $route)
     {
-        /** @var Route $route */
+        /** @var AclRouteContext $context */
+        $context = $route->data->get($this->id);
 
-        if (!$route->data->has($this->id)) {
-            return true;
+        $resultKey = $this->id . '.result';
+        $taskResult = $task->data->get($resultKey);
+
+        if ($taskResult === null) {
+            $taskResult = $context->satisfied;
+            $task->data->set($resultKey, $taskResult);
         }
 
-        $acl = $route->data->asFilter($this->id);
-
-        if ($task->data->get($this->id . 'Whitelisted')) {
-            return false;
-        }
-
-        if ($acl->get('whitelisted')) {
-            $task->data->set($this->id . 'Whitelisted', true);
-            return false;
-        }
-
-        $task->data->set($this->type, $this);
-
-        return !AclPage::processAuthorization($this, $task, $acl->needs('rule'));
+        return $taskResult !== true;
     }
 }
