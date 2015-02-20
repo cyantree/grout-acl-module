@@ -72,7 +72,7 @@ class AclModule extends Module
 
         if (!$context->satisfied) {
             if ($loginPage = $context->loginPage) {
-                $loginPageContext = AppTools::decodeContext($loginPage, $this->app, $task->module, $task->plugin);
+                $loginPageContext = $this->app->decodeContext($loginPage, $task->module, $task->plugin);
 
                 $module = $loginPageContext->module;
                 $page = $loginPageContext->uri;
