@@ -99,7 +99,7 @@ class AclModule extends Module
         return $route ? $route->getUrl() : null;
     }
 
-    public function routeRetrieved($task, $route)
+    public function routeRetrieved(Task $task, Route $route)
     {
         /** @var AclRouteContext $context */
         $context = $route->data->get($this->id);
