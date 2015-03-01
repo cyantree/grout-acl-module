@@ -36,7 +36,7 @@ class AclModule extends Module
         $this->secureRoute($route, $rule, $name, $loginPage);
     }
 
-    public function secureUrlRecursive($url, AclRule $rule, $name = null, $loginPage = 0)
+    public function secureUrlRecursive($url, AclRule $rule, $name = null, $loginPage = null)
     {
         $route = $this->addRoute($url . '%%secureRecursive,.*%%');
         $this->secureRoute($route, $rule, $name, $loginPage);
