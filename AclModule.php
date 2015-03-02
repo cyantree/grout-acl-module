@@ -44,7 +44,7 @@ class AclModule extends Module
 
     public function secureRoute(Route $route, AclRule $rule, $name = null, $loginPage = null)
     {
-        $route->priority = $rule->priority;
+        $route->priority += $rule->priority;
         $route->data->set($this->id, new AclRouteContext($rule, $name, $loginPage));
         $route->events->join('retrieved', array($this, 'onRouteRetrieved'));
     }
