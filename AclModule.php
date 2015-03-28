@@ -30,21 +30,21 @@ class AclModule extends Module
         $this->app->configs->setDefaultConfig($this->id, new AclConfig());
     }
 
-    public function secureUrl($url, AclRule $rule, $name = null, $loginPage = null)
+    public function secureUrl($url, AclRule $rule, $name = null, $loginRoute = null)
     {
         $route = $this->addRoute($url);
-        return $this->secureRoute($route, $rule, $name, $loginPage);
+        return $this->secureRoute($route, $rule, $name, $loginRoute);
     }
 
-    public function secureUrlRecursive($url, AclRule $rule, $name = null, $loginPage = null)
+    public function secureUrlRecursive($url, AclRule $rule, $name = null, $loginRoute = null)
     {
         $route = $this->addRoute($url . '%%secureRecursive,.*%%');
-        return $this->secureRoute($route, $rule, $name, $loginPage);
+        return $this->secureRoute($route, $rule, $name, $loginRoute);
     }
 
-    public function secureRoute(Route $route, AclRule $rule, $name = null, $loginPage = null)
+    public function secureRoute(Route $route, AclRule $rule, $name = null, $loginRoute = null)
     {
-        $context = new AclRouteContext($rule, $name, $loginPage);
+        $context = new AclRouteContext($rule, $name, $loginRoute);
         $route->priority += $rule->priority;
         $route->data->set($this->id, $context);
         $route->events->join('retrieved', array($this, 'onRouteRetrieved'));
@@ -74,18 +74,13 @@ class AclModule extends Module
         $context->satisfied = AclPage::processAuthorization($this, $task, $context->rule);
 
         if (!$context->satisfied) {
-            if ($loginPage = $context->loginPage) {
-                $loginPageContext = $this->app->decodeContext($loginPage, $task->module, $task->plugin);
+            $loginRoute = $context->loginRoute;
 
-                $module = $loginPageContext->module;
-                $page = $loginPageContext->uri;
-
-            } else {
-                $module = $this;
-                $page = 'Pages\AclPage';
+            if (!$loginRoute) {
+                $loginRoute = $this->addRoute('', 'Pages\AclPage', $route->data->getData(), 0, false);
             }
 
-            $event->data = $module->addRoute('', $page, $route->data->getData(), 0, false);
+            $event->data = $loginRoute;
             $event->stopPropagation = true;
         }
     }
