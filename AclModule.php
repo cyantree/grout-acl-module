@@ -33,20 +33,23 @@ class AclModule extends Module
     public function secureUrl($url, AclRule $rule, $name = null, $loginPage = null)
     {
         $route = $this->addRoute($url);
-        $this->secureRoute($route, $rule, $name, $loginPage);
+        return $this->secureRoute($route, $rule, $name, $loginPage);
     }
 
     public function secureUrlRecursive($url, AclRule $rule, $name = null, $loginPage = null)
     {
         $route = $this->addRoute($url . '%%secureRecursive,.*%%');
-        $this->secureRoute($route, $rule, $name, $loginPage);
+        return $this->secureRoute($route, $rule, $name, $loginPage);
     }
 
     public function secureRoute(Route $route, AclRule $rule, $name = null, $loginPage = null)
     {
+        $context = new AclRouteContext($rule, $name, $loginPage);
         $route->priority += $rule->priority;
-        $route->data->set($this->id, new AclRouteContext($rule, $name, $loginPage));
+        $route->data->set($this->id, $context);
         $route->events->join('retrieved', array($this, 'onRouteRetrieved'));
+
+        return $context;
     }
 
     public function onRouteRetrieved(Event $event)
