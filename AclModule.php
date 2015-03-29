@@ -32,20 +32,27 @@ class AclModule extends Module
 
     public function secureUrl($url, AclRule $rule, $name = null, $loginRoute = null)
     {
-        $route = $this->addRoute($url);
-        return $this->secureRoute($route, $rule, $name, $loginRoute);
+        $route = $this->addRoute($url, null, null, $rule->priority);
+        return $this->finalizeSecureRoute($route, $rule, $name, $loginRoute);
     }
 
     public function secureUrlRecursive($url, AclRule $rule, $name = null, $loginRoute = null)
     {
-        $route = $this->addRoute($url . '%%secureRecursive,.*%%');
-        return $this->secureRoute($route, $rule, $name, $loginRoute);
+        $route = $this->addRoute($url . '%%secureRecursive,.*%%', null, null, $rule->priority);
+        return $this->finalizeSecureRoute($route, $rule, $name, $loginRoute);
     }
 
     public function secureRoute(Route $route, AclRule $rule, $name = null, $loginRoute = null)
     {
+        $priority = $this->priority - $route->module->priority + $rule->priority;
+        $newRoute = $route->module->addRoute($route->getMatchUrl(), null, null, $priority);
+
+        return $this->finalizeSecureRoute($newRoute, $rule, $name, $loginRoute);
+    }
+
+    private function finalizeSecureRoute(Route $route, AclRule $rule, $name = null, $loginRoute = null)
+    {
         $context = new AclRouteContext($rule, $name, $loginRoute);
-        $route->priority += $rule->priority;
         $route->data->set($this->id, $context);
         $route->events->join('retrieved', array($this, 'onRouteRetrieved'));
 
@@ -60,7 +67,8 @@ class AclModule extends Module
         /** @var Task $task */
         $task = $event->context['task'];
 
-        if ($task->data->get($this->id . 'result')) {
+        if ($task->data->has($this->id . '.result')) {
+            $event->data = false;
             return;
         }
 
@@ -73,15 +81,23 @@ class AclModule extends Module
 
         $context->satisfied = AclPage::processAuthorization($this, $task, $context->rule);
 
-        if (!$context->satisfied) {
+        $task->data->set($this->id . '.result', $context->satisfied);
+
+        if ($context->satisfied) {
+            $event->data = false; // Skip route because it is only a dummy for ACL checking
+
+        } else {
             $loginRoute = $context->loginRoute;
 
             if (!$loginRoute) {
-                $loginRoute = $this->addRoute('', 'Pages\AclPage', $route->data->getData(), 0, false);
+                $loginRoute = $this->getDefaultLoginRoute();
             }
 
-            $event->data = $loginRoute;
-            $event->stopPropagation = true;
+            // Redirect to login route
+            $event->data = array(
+                'route' => $loginRoute,
+                'vars' => array($this->id => $context)
+            );
         }
     }
 
@@ -97,19 +113,15 @@ class AclModule extends Module
         return $route ? $route->getUrl() : null;
     }
 
-    public function routeRetrieved(Task $task, Route $route)
+    private function getDefaultLoginRoute()
     {
-        /** @var AclRouteContext $context */
-        $context = $route->data->get($this->id);
+        if ($this->hasRoute('login')) {
+            return $this->getRoute('login');
 
-        $resultKey = $this->id . '.result';
-        $taskResult = $task->data->get($resultKey);
-
-        if ($taskResult === null) {
-            $taskResult = $context->satisfied;
-            $task->data->set($resultKey, $taskResult);
+        } else {
+            return $this->addNamedRoute('login', '', 'Pages\AclPage', null, 0, false);
         }
 
-        return $taskResult !== true;
+
     }
 }
