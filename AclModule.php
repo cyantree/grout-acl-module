@@ -44,9 +44,7 @@ class AclModule extends Module
 
     public function secureRoute(Route $route, AclRule $rule, $name = null, $loginRoute = null)
     {
-        $priority = $this->priority - $route->module->priority + $rule->priority;
-        $newRoute = $route->module->addRoute($route->getMatchUrl(), null, null, $priority);
-
+        $newRoute = $this->addRoute($route->getMatchUrl(), null, null, $rule->priority);
         return $this->finalizeSecureRoute($newRoute, $rule, $name, $loginRoute);
     }
 
