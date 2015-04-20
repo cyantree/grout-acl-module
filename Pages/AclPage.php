@@ -3,7 +3,6 @@ namespace Grout\Cyantree\AclModule\Pages;
 
 use Cyantree\Grout\App\Page;
 use Cyantree\Grout\App\Task;
-use Cyantree\Grout\App\Types\ResponseCode;
 use Cyantree\Grout\Tools\ArrayTools;
 use Grout\Cyantree\AclModule\AclFactory;
 use Grout\Cyantree\AclModule\AclModule;
@@ -67,6 +66,6 @@ class AclPage extends Page
                           'name' => $aclConfig->name,
                           'username' => $this->task->request->post->get('username'),
                           'error' => $this->task->request->method == 'POST'
-                    ), $f->config()->baseTemplate)->content, null, ResponseCode::CODE_403);
+                    ), $f->config()->baseTemplate)->content, null, 403);
     }
 }
