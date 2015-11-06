@@ -77,7 +77,7 @@ class AclModule extends Module
             return;
         }
 
-        $context->satisfied = AclPage::processAuthorization($this, $task, $context->rule);
+        $context->satisfied = AclPage::processAuthorization($this, $task, $context);
 
         $task->data->set($this->id . '.result', $context->satisfied);
 

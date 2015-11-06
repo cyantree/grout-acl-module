@@ -2,6 +2,7 @@
 namespace Grout\Cyantree\AclModule\Pages;
 
 use Cyantree\Grout\App\Page;
+use Cyantree\Grout\App\Route;
 use Cyantree\Grout\App\Task;
 use Cyantree\Grout\Tools\ArrayTools;
 use Grout\Cyantree\AclModule\AclFactory;
@@ -13,11 +14,11 @@ use Grout\Cyantree\AclModule\Types\AclRule;
 
 class AclPage extends Page
 {
-    public static function processAuthorization(AclModule $module, Task $task, AclRule $rule)
+    public static function processAuthorization(AclModule $module, Task $task, AclRouteContext $context)
     {
         $f = AclFactory::get($task->app, null, $module);
 
-        $success = $f->acl()->satisfies($rule);
+        $success = $f->acl()->satisfies($context->rule);
 
         if (!$success) {
             list($username, $password) = $task->request->post->getMultiple(array('username', 'password'), false);
@@ -29,7 +30,7 @@ class AclPage extends Page
                 /** @var AclAccount $account */
                 $account = ArrayTools::get($config->accounts, $username);
                 if ($account) {
-                    $success = $account->checkPassword($password) && $f->acl()->satisfies($rule, $account);
+                    $success = $account->checkPassword($password) && $f->acl()->satisfies($context->rule, $account);
 
                     if ($success) {
                         $f->sessionData()->login($account);
@@ -39,6 +40,7 @@ class AclPage extends Page
                     $request = new AclLoginRequest();
                     $request->username = $username;
                     $request->password = $password;
+                    $request->context = $context;
 
                     $module->events->trigger('login', $request);
 
